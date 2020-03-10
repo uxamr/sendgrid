@@ -10,6 +10,9 @@ import time
 
 class sendgrid(Redshift) :
     def __init__(self) :
+        """
+        Creacion e insercion de las tablas messages, stats y geo_stats en la base de datos en Redshift
+        """
         super().__init__()
         self.headers = {'authorization': 'Bearer {}'.format(creds.sendgrid["token"])}
     def messages(self, start_date = None, end_date = None) :

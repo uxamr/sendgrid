@@ -8,6 +8,7 @@ from calendar import monthrange
 
 class Redshift() :
     def __init__(self):
+        """Motor para la conexion con Redshift"""
         self.engine = create_engine("postgresql+psycopg2://{user}:{contr}@{host}:{port}/{base}".format( user = creds.redshift["user"], 
                                                                                                     contr = creds.redshift["password"],
                                                                                                     port = creds.redshift["port"],
@@ -61,6 +62,12 @@ class Semana():
 
 class New_Columns() :
     def __init__(self, tabla, eng, name) :
+        """
+        Inserta las columnas nuevas del dataframe que no estén en la base de datos.
+        tabla: Dataframe que se quiere insertar
+        eng: motor de conexion
+        name: nombre de la tabla en la db
+        """
         types = {"int": "bigint",
                  "int64": "bigint",
                  "bool": "boolean",
@@ -90,6 +97,15 @@ class New_Columns() :
 
 class Initialize() :
     def __init__(self, dat, name, engine, pkey = "", fkey = [], ref = [], d_type = "character varying (65535)") :
+        """
+        Crea una nueva tabla en la base de datos.
+        name: nombre de la tabla en la db
+        engine: motor de conexion
+        pkey: llave primaria
+        fkey: lista de llaves foraneas
+        ref: lista de diccionarios que enlazan las llaves primarias con su referencia. La lista debe ser del mismo tamaño que fkey y deben seguir el mismo orden
+            [{"table":"nombre_de_la_tabla", "key":"llave_de_la_referencia"}]
+        """
         with engine.connect() as conn :
             conn.execute("DROP TABLE IF EXISTS {} CASCADE".format(name))
             if pkey != "" :
@@ -107,6 +123,12 @@ class Initialize() :
 
 class Upload_Redshift() :
     def __init__(self, df, name_table, engine) :
+        """
+        Sube los datos de un dataframe a una tabla en una instancia de Redshift, empleando un bucket de S3 como intermediario
+        df: dataframe a insertar
+        name_table: nombre de la tabla en la db en la que se quieren insertar los datos
+        engine: motor de conexion
+        """
         session = boto3.Session(
             aws_access_key_id = creds.aws["key"],
             aws_secret_access_key = creds.aws["secret_key"])
